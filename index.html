@@ -1,0 +1,1647 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz de futebol do Ilan Erick</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --azul: #071b45;
+    --azul-claro: #168bff;
+    --verde: #42e65b;
+    --amarelo: #ffd331;
+    --vermelho: #ff424c;
+    --branco: #ffffff;
+}
+
+body {
+    min-height: 100vh;
+    font-family: Arial, Helvetica, sans-serif;
+    color: white;
+    background:
+        radial-gradient(ellipse at 50% 25%, #238bd7 0%, transparent 60%),
+        linear-gradient(#0874bd 0%, #07509b 45%, #073b36 75%, #146b32 100%);
+    overflow-x: hidden;
+}
+
+button {
+    font-family: inherit;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible {
+    outline: 3px solid white;
+    outline-offset: 3px;
+}
+
+/* ESTÁDIO */
+
+.stadium {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+    background:
+        repeating-linear-gradient(
+            115deg,
+            transparent 0 45px,
+            #ffffff08 46px 90px
+        );
+}
+
+.stadium::before {
+    content: "🏟️";
+    position: absolute;
+    top: 15%;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: clamp(180px, 40vw, 440px);
+    opacity: 0.12;
+}
+
+.stadium::after {
+    content: "";
+    position: absolute;
+    bottom: -100px;
+    left: -10%;
+    width: 120%;
+    height: 33%;
+    border-top: 4px solid #ffffff65;
+    border-radius: 50% 50% 0 0;
+    background: repeating-linear-gradient(
+        90deg,
+        #168b37 0 100px,
+        #1c9c43 100px 200px
+    );
+}
+
+/* CONTEÚDO */
+
+.app {
+    width: min(1100px, 94%);
+    margin: auto;
+    padding: 20px 0 35px;
+}
+
+.topbar {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 1.25fr auto auto auto;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.logo {
+    font-size: clamp(20px, 3.5vw, 32px);
+    font-weight: 1000;
+    line-height: 1.1;
+    color: var(--amarelo);
+    text-shadow: 3px 3px 0 #071b45;
+}
+
+.logo span {
+    display: block;
+    color: white;
+    font-size: 0.85em;
+}
+
+.stat {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 78px;
+    padding: 12px;
+    border: 2px solid #48aaff;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #123b78, #061535);
+    box-shadow: 0 5px 0 #041026;
+}
+
+.stat-icon {
+    font-size: 30px;
+}
+
+.stat-label {
+    display: block;
+    font-size: 12px;
+    font-weight: bold;
+    color: #d9eaff;
+}
+
+.stat-value {
+    display: block;
+    margin-top: 3px;
+    font-size: 25px;
+    font-weight: 900;
+}
+
+.pause, .sound-btn, .ranking-top-btn {
+    width: 52px;
+    height: 52px;
+    border: 3px solid white;
+    border-radius: 16px;
+    color: white;
+    background: #0879e9;
+    font-size: 22px;
+    font-weight: bold;
+    box-shadow: 0 4px 0 #052354;
+    display: grid;
+    place-items: center;
+}
+
+/* BADGES DE DIFICULDADE */
+.diff-badge {
+    padding: 4px 10px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+.diff-facil { background: var(--verde); color: #053310; }
+.diff-medio { background: var(--amarelo); color: #423000; }
+.diff-dificil { background: var(--vermelho); color: #ffffff; }
+
+/* PROGRESSO */
+
+.progress-track {
+    height: 8px;
+    margin-top: 7px;
+    overflow: hidden;
+    border-radius: 20px;
+    background: #ffffff35;
+}
+
+.progress-fill {
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--verde);
+    transition: width 0.2s linear;
+}
+
+.timer-stat .progress-fill {
+    background: var(--amarelo);
+}
+
+/* PERGUNTA */
+
+.question-card {
+    position: relative;
+    margin: 35px 0 22px;
+    padding: 38px 25px;
+    border: 4px solid #0b2e63;
+    border-radius: 28px;
+    color: var(--azul);
+    background: linear-gradient(145deg, #ffffff, #eaf4ff);
+    box-shadow: 0 8px 0 #031633;
+    text-align: center;
+}
+
+.question-tag {
+    position: absolute;
+    top: -20px;
+    left: 22px;
+    padding: 10px 18px;
+    border: 3px solid white;
+    border-radius: 14px;
+    background: #0755bd;
+    color: white;
+    font-weight: 900;
+    font-size: 14px;
+}
+
+.question-card h1 {
+    font-size: clamp(21px, 3.4vw, 34px);
+    line-height: 1.4;
+}
+
+.hint {
+    margin-top: 14px;
+    color: #0755bd;
+    font-weight: bold;
+    line-height: 1.5;
+}
+
+/* ALTERNATIVAS */
+
+.answers {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 15px;
+}
+
+.answer {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    min-height: 85px;
+    padding: 14px;
+    border: 4px solid #ffffffa0;
+    border-radius: 20px;
+    color: white;
+    text-align: left;
+    font-size: clamp(15px, 2.2vw, 22px);
+    font-weight: 800;
+    box-shadow: 0 5px 0 #061a40;
+    transition: transform 0.15s, filter 0.15s;
+}
+
+.answer:hover:not(:disabled) {
+    transform: translateY(-3px);
+    filter: brightness(1.12);
+}
+
+.answer:disabled {
+    cursor: default;
+}
+
+.answer-letter {
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #071b4560;
+    border: 2px solid #ffffff60;
+    font-size: 23px;
+}
+
+/* SEGUNDA OPÇÃO MARROM */
+.answer:nth-child(1) {
+    background: linear-gradient(135deg, #168bff, #0860d4);
+}
+
+.answer:nth-child(2) {
+    background: linear-gradient(135deg, #a55728, #6e3513);
+}
+
+.answer:nth-child(3) {
+    background: linear-gradient(135deg, #ffda35, #f5a900);
+    color: #13284c;
+}
+
+.answer:nth-child(4) {
+    background: linear-gradient(135deg, #ff5757, #d91c37);
+}
+
+.answer.correct {
+    background: #169d42 !important;
+    border-color: #b4ffb9 !important;
+    color: white !important;
+}
+
+.answer.wrong {
+    background: #a31628 !important;
+    border-color: #ffc1c1 !important;
+    color: white !important;
+}
+
+.answer.hidden-answer {
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.feedback {
+    min-height: 32px;
+    margin: 20px 0 8px;
+    text-align: center;
+    font-size: 19px;
+    font-weight: 900;
+}
+
+/* AJUDAS */
+
+.helpers {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.helper {
+    min-width: 135px;
+    padding: 12px 18px;
+    border: 2px solid #6fc4ff;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #103d80, #061a42);
+    color: white;
+    font-weight: 800;
+    font-size: 15px;
+    box-shadow: 0 4px 0 #03112d;
+}
+
+.helper span {
+    margin-right: 6px;
+    font-size: 21px;
+}
+
+.helper:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.footer {
+    margin-top: 24px;
+    color: #ffffffcf;
+    text-align: center;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+/* MODAL, NOME E RANKING */
+
+.overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    display: none;
+    place-items: center;
+    padding: 20px;
+    background: #020c22dc;
+}
+
+.overlay.show {
+    display: grid;
+}
+
+.modal {
+    width: min(480px, 100%);
+    padding: 28px 22px;
+    border: 4px solid #52adff;
+    border-radius: 25px;
+    background: linear-gradient(145deg, #123c7b, #06142f);
+    text-align: center;
+    box-shadow: 0 12px 0 #020a1a;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal h2 {
+    margin-bottom: 12px;
+    color: var(--amarelo);
+    font-size: 26px;
+}
+
+.modal p {
+    margin-bottom: 18px;
+    line-height: 1.5;
+    font-size: 15px;
+}
+
+.name-input-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.name-input-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 13px;
+    font-weight: bold;
+    color: #d9eaff;
+}
+
+.name-input {
+    width: 100%;
+    padding: 14px;
+    border: 2px solid #48aaff;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    background: #06183a;
+    color: white;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.name-input:focus {
+    border-color: var(--amarelo);
+    box-shadow: 0 0 10px rgba(255, 211, 49, 0.4);
+}
+
+.name-input.error {
+    border-color: var(--vermelho) !important;
+    animation: shake 0.3s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-6px); }
+    75% { transform: translateX(6px); }
+}
+
+.modal-btns {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.btn-diff {
+    width: 100%;
+    padding: 15px;
+    border: 3px solid white;
+    border-radius: 16px;
+    color: white;
+    font-size: 17px;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.3);
+    transition: transform 0.15s;
+}
+
+.btn-diff:hover {
+    transform: translateY(-2px);
+}
+
+.btn-facil { background: linear-gradient(135deg, #2ecc71, #1e8449); }
+.btn-medio { background: linear-gradient(135deg, #f39c12, #d68910); }
+.btn-dificil { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+.btn-ranking { background: linear-gradient(135deg, #168bff, #0860d4); justify-content: center; margin-top: 5px; }
+
+/* LISTA DE RANKING UNIFICADA */
+.ranking-list {
+    list-style: none;
+    margin: 15px 0 20px;
+    padding: 0;
+    text-align: left;
+}
+
+.ranking-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.ranking-item:nth-child(1) { background: rgba(255, 215, 0, 0.2); border-color: #ffd700; color: #ffe666; }
+.ranking-item:nth-child(2) { background: rgba(192, 192, 192, 0.2); border-color: #c0c0c0; }
+.ranking-item:nth-child(3) { background: rgba(205, 127, 50, 0.2); border-color: #cd7f32; }
+
+/* CELULARES */
+
+@media (max-width: 650px) {
+    .app {
+        width: 94%;
+        padding-top: 14px;
+    }
+
+    .topbar {
+        grid-template-columns: 1fr 1fr;
+        gap: 9px;
+        margin-bottom: 15px;
+    }
+
+    .logo {
+        font-size: 22px;
+        padding-right: 10px;
+    }
+
+    .stat {
+        min-height: 65px;
+        padding: 8px;
+        border-radius: 14px;
+    }
+
+    .stat-icon {
+        font-size: 24px;
+    }
+
+    .stat-value {
+        font-size: 21px;
+    }
+
+    .pause, .sound-btn, .ranking-top-btn {
+        width: 43px;
+        height: 43px;
+        font-size: 18px;
+    }
+
+    .question-card {
+        margin-top: 30px;
+        padding: 32px 15px 25px;
+        border-radius: 21px;
+    }
+
+    .question-tag {
+        left: 12px;
+        font-size: 12px;
+    }
+
+    .answers {
+        gap: 10px;
+    }
+
+    .answer {
+        min-height: 76px;
+        gap: 8px;
+        padding: 9px;
+        border-width: 3px;
+        border-radius: 15px;
+        font-size: 15px;
+        overflow-wrap: anywhere;
+    }
+
+    .answer-letter {
+        width: 35px;
+        height: 35px;
+        font-size: 18px;
+    }
+
+    .helper {
+        flex: 1 1 28%;
+        min-width: 0;
+        padding: 11px 7px;
+        font-size: 12px;
+    }
+}
+</style>
+</head>
+
+<body>
+<div class="stadium"></div>
+
+<main class="app">
+
+    <header class="topbar">
+
+        <div class="logo">
+            ⚽ QUIZ FUTEBOL
+            <span>DO ILAN ERICK</span>
+        </div>
+
+        <div class="stat">
+            <div class="stat-icon">⭐</div>
+            <div>
+                <span class="stat-label">PONTUAÇÃO</span>
+                <span class="stat-value" id="score">0</span>
+            </div>
+        </div>
+
+        <div class="stat timer-stat">
+            <div class="stat-icon">⏱️</div>
+            <div style="width:100%">
+                <span class="stat-label">TEMPO</span>
+                <span class="stat-value" id="time">20s</span>
+                <div class="progress-track">
+                    <div class="progress-fill" id="timerBar"></div>
+                </div>
+            </div>
+        </div>
+
+        <button class="ranking-top-btn" id="rankingTopBtn" onclick="showRankingView()" aria-label="Ver Ranking">
+            🏆
+        </button>
+
+        <button class="sound-btn" id="soundBtn" aria-label="Alternar Áudio">
+            🔊
+        </button>
+
+        <button class="pause" id="pauseBtn" aria-label="Pausar jogo">
+            Ⅱ
+        </button>
+
+    </header>
+
+    <div class="stat" style="justify-content:space-between; min-height:auto">
+        <span id="questionNumber">🏆 PERGUNTA 1/10</span>
+        <span id="diffDisplay" class="diff-badge diff-medio">MÉDIO</span>
+        <span id="progressText">0% concluído</span>
+    </div>
+
+    <div class="progress-track" style="margin-top:10px">
+        <div class="progress-fill" id="questionBar" style="width:0%"></div>
+    </div>
+
+    <section class="question-card">
+        <div class="question-tag">⚽ CURIOSIDADE FUTEBOL</div>
+        <h1 id="question">Digite seu nome para começar!</h1>
+        <p class="hint" id="hint" hidden></p>
+    </section>
+
+    <section class="answers" id="answers"></section>
+
+    <div class="feedback" id="feedback" aria-live="polite">
+        Informe seu nome (obrigatório) e selecione a dificuldade.
+    </div>
+
+    <section class="helpers">
+
+        <button class="helper" id="skipBtn">
+            <span>⏭️</span> Pular (2)
+        </button>
+
+        <button class="helper" id="fiftyBtn">
+            <span>👥</span> 50/50
+        </button>
+
+        <button class="helper" id="hintBtn">
+            <span>💡</span> Dica
+        </button>
+
+    </section>
+
+    <footer class="footer">
+        🏟️ CURIOSIDADES DOS CRAQUES FAMOSOS!
+    </footer>
+
+</main>
+
+<!-- MODAL DE SELEÇÃO DE NOME, DIFICULDADE E RANKING -->
+<div class="overlay show" id="overlay">
+    <div class="modal" id="modalContent">
+        <!-- Conteúdo dinâmico via JS -->
+    </div>
+</div>
+
+<script>
+// ==========================================
+// SISTEMA DE ÁUDIO SINTETIZADO (WEB AUDIO API)
+// ==========================================
+class SoundEngine {
+    constructor() {
+        this.ctx = null;
+        this.muted = false;
+        this.currentMusicTimer = null;
+        this.musicType = null;
+    }
+
+    init() {
+        if (!this.ctx) {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            this.ctx = new AudioCtx();
+        }
+        if (this.ctx.state === 'suspended') {
+            this.ctx.resume();
+        }
+    }
+
+    playTone(freq, type, duration, delay = 0, gainVal = 0.1) {
+        if (this.muted) return;
+        this.init();
+
+        setTimeout(() => {
+            try {
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+
+                gain.gain.setValueAtTime(gainVal, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start();
+                osc.stop(this.ctx.currentTime + duration);
+            } catch (e) {}
+        }, delay);
+    }
+
+    playMenuMusic() {
+        this.stopMusic();
+        this.musicType = 'menu';
+        if (this.muted) return;
+
+        const notes = [261.63, 329.63, 392.00, 523.25, 392.00, 329.63];
+        let idx = 0;
+
+        const loop = () => {
+            if (this.musicType !== 'menu' || this.muted) return;
+            this.playTone(notes[idx % notes.length], 'sine', 0.25, 0, 0.08);
+            this.playTone(notes[(idx + 2) % notes.length] / 2, 'triangle', 0.3, 0, 0.05);
+            idx++;
+            this.currentMusicTimer = setTimeout(loop, 320);
+        };
+        loop();
+    }
+
+    playGameMusic() {
+        this.stopMusic();
+        this.musicType = 'game';
+        if (this.muted) return;
+
+        const bassNotes = [130.81, 146.83, 164.81, 174.61];
+        let step = 0;
+
+        const loop = () => {
+            if (this.musicType !== 'game' || this.muted) return;
+            const freq = bassNotes[step % bassNotes.length];
+            this.playTone(freq, 'sawtooth', 0.12, 0, 0.04);
+            if (step % 2 === 0) {
+                this.playTone(freq * 2, 'square', 0.08, 100, 0.02);
+            }
+            step++;
+            this.currentMusicTimer = setTimeout(loop, 250);
+        };
+        loop();
+    }
+
+    playWinSound() {
+        this.stopMusic();
+        if (this.muted) return;
+
+        const fanfare = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99];
+        fanfare.forEach((f, i) => {
+            this.playTone(f, 'triangle', 0.35, i * 120, 0.12);
+        });
+        setTimeout(() => {
+            this.playTone(523.25, 'square', 0.6, 0, 0.15);
+            this.playTone(659.25, 'square', 0.6, 50, 0.15);
+            this.playTone(783.99, 'square', 0.8, 100, 0.18);
+        }, 700);
+    }
+
+    playLoseSound() {
+        this.stopMusic();
+        if (this.muted) return;
+
+        const sadNotes = [392.00, 369.99, 349.23, 329.63, 261.63];
+        sadNotes.forEach((f, i) => {
+            this.playTone(f, 'sawtooth', 0.4, i * 220, 0.1);
+        });
+    }
+
+    playCorrectSound() {
+        this.playTone(523.25, 'sine', 0.15, 0, 0.12);
+        this.playTone(659.25, 'sine', 0.25, 120, 0.15);
+    }
+
+    playWrongSound() {
+        this.playTone(185.00, 'sawtooth', 0.2, 0, 0.12);
+        this.playTone(130.81, 'sawtooth', 0.3, 150, 0.15);
+    }
+
+    playClickSound() {
+        this.playTone(440, 'sine', 0.05, 0, 0.05);
+    }
+
+    stopMusic() {
+        this.musicType = null;
+        if (this.currentMusicTimer) {
+            clearTimeout(this.currentMusicTimer);
+            this.currentMusicTimer = null;
+        }
+    }
+
+    toggleMute() {
+        this.muted = !this.muted;
+        if (this.muted) {
+            this.stopMusic();
+        } else {
+            this.playMenuMusic();
+        }
+        return this.muted;
+    }
+}
+
+const soundEngine = new SoundEngine();
+
+// ==========================================
+// GERADOR PROGRAMÁTICO DE 750 PERGUNTAS (250 POR NÍVEL)
+// ==========================================
+function generateDatabase() {
+    const playersFacil = [
+        ["Cristiano Ronaldo", "CR7", "Portugal", "Real Madrid", "Camisa 7", "Manchester United", "Al-Nassr", "5 Bolas de Ouro"],
+        ["Lionel Messi", "ET", "Argentina", "Barcelona", "Camisa 10", "Inter Miami", "PSG", "8 Bolas de Ouro"],
+        ["Neymar Jr.", "Ney", "Brasil", "Santos", "Camisa 10", "PSG", "Al-Hilal", "Transferência de 222 milhões"],
+        ["Pelé", "Rei do Futebol", "Brasil", "Santos", "Camisa 10", "NY Cosmos", "Brasil", "3 Copas do Mundo"],
+        ["Erling Haaland", "Cometa", "Noruega", "Manchester City", "Camisa 9", "Borussia Dortmund", "Red Bull Salzburg", "Meditação"],
+        ["Kylian Mbappé", "Donatello", "França", "Real Madrid", "Camisa 9", "PSG", "Monaco", "Campeão do Mundo em 2018"],
+        ["Ronaldinho Gaúcho", "Bruxo", "Brasil", "Barcelona", "Camisa 10", "Atlético Mineiro", "Flamengo", "Bola de Ouro 2005"],
+        ["Kaká", "Maestro", "Brasil", "Milan", "Camisa 22", "Real Madrid", "São Paulo", "Bola de Ouro 2007"],
+        ["Vinícius Jr.", "Vini", "Brasil", "Real Madrid", "Camisa 7", "Flamengo", "Brasil", "Gol na final da Champions"],
+        ["Jude Bellingham", "Belli", "Inglaterra", "Real Madrid", "Camisa 5", "Borussia Dortmund", "Birmingham", "Comemoração de braços abertos"],
+        ["Robert Lewandowski", "Lewa", "Polônia", "Barcelona", "Camisa 9", "Bayern de Munique", "Borussia Dortmund", "5 gols em 9 minutos"],
+        ["Zlatan Ibrahimović", "Ibra", "Suécia", "PSG", "Camisa 11", "Milan", "Inter de Milão", "Faixa preta de Taekwondo"],
+        ["Luka Modrić", "Maestro Croata", "Croácia", "Real Madrid", "Camisa 10", "Tottenham", "Dinamo Zagreb", "Bola de Ouro 2018"],
+        ["Karim Benzema", "KB9", "França", "Real Madrid", "Camisa 9", "Al-Ittihad", "Lyon", "Bola de Ouro 2022"],
+        ["Mohamed Salah", "Rei do Egito", "Egito", "Liverpool", "Camisa 11", "Roma", "Chelsea", "Maior artilheiro africano da Premier League"],
+        ["Kevin De Bruyne", "KDB", "Bélgica", "Manchester City", "Camisa 17", "Wolfsburg", "Chelsea", "Rei das assistências"],
+        ["Manuel Neuer", "Goleiro-Líbero", "Alemanha", "Bayern de Munique", "Camisa 1", "Schalke 04", "Alemanha", "Campeão do Mundo 2014"],
+        ["Gianluigi Buffon", "Gigi", "Itália", "Juventus", "Camisa 1", "Parma", "PSG", "Campeão do Mundo 2006"],
+        ["Ronaldo Fenômeno", "R9", "Brasil", "Real Madrid", "Camisa 9", "Inter de Milão", "PSV", "Corte Cascão em 2002"],
+        ["Zinedine Zidane", "Zizou", "França", "Real Madrid", "Camisa 5", "Juventus", "Bordeaux", "Gol de voleio em 2002"],
+        ["Diego Maradona", "El Pibe de Oro", "Argentina", "Napoli", "Camisa 10", "Boca Juniors", "Argentinos Juniors", "Mão de Deus em 1986"],
+        ["Romário", "Baixinho", "Brasil", "PSV", "Camisa 11", "Flamengo", "Vasco", "Tetracampeão em 1994"],
+        ["Rivaldo", "Maestro", "Brasil", "Barcelona", "Camisa 10", "Palmeiras", "Deportivo La Coruña", "Bola de Ouro 1999"],
+        ["Luis Suárez", "El Pistolero", "Uruguai", "Barcelona", "Camisa 9", "Liverpool", "Ajax", "Tridente MSN"],
+        ["Antoine Griezmann", "Grizi", "França", "Atlético de Madrid", "Camisa 7", "Barcelona", "Real Sociedad", "Campeão do Mundo 2018"]
+    ];
+
+    const playersMedio = [
+        ["Toni Kroos", "Alemanha", "Bayern de Munique", "Real Madrid", "Camisa 8", "Tetracampeão 2014", "Bayer Leverkusen"],
+        ["Thiago Silva", "Brasil", "Fluminense", "PSG", "Chelsea", "Monstro", "Milan"],
+        ["Angel Di María", "Argentina", "Benfica", "Real Madrid", "PSG", "Gol da final da Copa 2022", "Rosario Central"],
+        ["Thomas Müller", "Alemanha", "Bayern de Munique", "Alemanha", "Camisa 25", "Raumdeuter", "Copa do Mundo 2010"],
+        ["Gareth Bale", "País de Gales", "Tottenham", "Real Madrid", "Camisa 11", "Gol de bicicleta na Champions 2018", "Southampton"],
+        ["Andrés Iniesta", "Espanha", "Barcelona", "Vissel Kobe", "Camisa 8", "Gol do título da Copa 2010", "Al-Ermis"],
+        ["Xavi Hernández", "Espanha", "Barcelona", "Al-Sadd", "Camisa 6", "Maestro do Tiki-Taka", "Técnico do Barcelona"],
+        ["Sergio Ramos", "Espanha", "Sevilla", "Real Madrid", "PSG", "Gol aos 93 minutos na Champions 2014", "Camisa 4"],
+        ["Marcelo", "Brasil", "Fluminense", "Real Madrid", "Olympiacos", "Camisa 12", "Tetracampeão da Champions"],
+        ["Dani Alves", "Brasil", "Bahia", "Sevilla", "Barcelona", "Jogador com mais títulos na história", "Juventus"],
+        ["Casemiro", "Brasil", "São Paulo", "Real Madrid", "Manchester United", "Camisa 14", "Volante das 5 Champions"],
+        ["Alisson Becker", "Brasil", "Internacional", "Roma", "Liverpool", "Goleiro artilheiro de cabeça", "Luva de Ouro"],
+        ["Ederson", "Brasil", "São Paulo", "Benfica", "Manchester City", "Lançamento preciso com os pés", "Tríplice Coroa"],
+        ["Virgil van Dijk", "Holanda", "Groningen", "Celtic", "Southampton", "Liverpool", "Melhor jogador da UEFA 2019"],
+        ["Harry Kane", "Inglaterra", "Tottenham", "Bayern de Munique", "Camisa 9", "Maior artilheiro da Seleção Inglesa", "Millwall"],
+        ["Son Heung-min", "Coreia do Sul", "Hamburger SV", "Bayer Leverkusen", "Tottenham", "Prêmio Puskás de 2020", "Camisa 7"],
+        ["Bruno Fernandes", "Portugal", "Novara", "Sporting CP", "Manchester United", "Camisa 8", "Capitão do United"],
+        ["Bernardo Silva", "Portugal", "Benfica", "Monaco", "Manchester City", "Camisa 20", "Canhotinho mágico"],
+        ["Lautaro Martínez", "Argentina", "Racing", "Inter de Milão", "Camisa 10", "El Toro", "Campeão do Mundo 2022"],
+        ["Julian Álvarez", "Argentina", "River Plate", "Manchester City", "Atlético de Madrid", "La Araña", "Campeão de tudo aos 24 anos"],
+        ["Rodri", "Espanha", "Villarreal", "Atlético de Madrid", "Manchester City", "Gol do título da Champions 2023", "Bola de Ouro candidate"],
+        ["Federico Valverde", "Uruguai", "Peñarol", "Deportivo La Coruña", "Real Madrid", "El Pajarito", "Camisa 8"],
+        ["Pedri", "Espanha", "Las Palmas", "Barcelona", "Camisa 8", "Golden Boy 2021", "Visão de jogo"],
+        ["Gavi", "Espanha", "Real Betis", "Barcelona", "Camisa 6", "Golden Boy 2022", "Garra no meio-campo"],
+        ["Raphinha", "Brasil", "Avaí", "Leeds United", "Rennes", "Barcelona", "Ponta velocista"]
+    ];
+
+    const playersDificil = [
+        ["Just Fontaine", "França", "13 gols na Copa de 1958", "USM Casablanca", "OGC Nice", "Stade de Reims", "Recorde em uma única Copa"],
+        ["Oliver Kahn", "Alemanha", "Melhor jogador da Copa 2002", "Karlsruher SC", "Bayern de Munique", "Goleiro único da Bola de Ouro da Copa", "Der Titan"],
+        ["Miroslav Klose", "Alemanha", "Maior artilheiro da história das Copas (16 gols)", "FC 08 Homburg", "1. FC Kaiserslautern", "Werder Bremen", "Lazio"],
+        ["Cafu", "Brasil", "Único a disputar 3 finais consecutivas de Copa (94, 98, 02)", "São Paulo", "Zaragoza", "Roma", "Milan"],
+        ["Lothar Matthäus", "Alemanha", "Disputou 5 Copas do Mundo (1982 a 1998)", "FC Herzogenaurach", "Borussia Mönchengladbach", "Inter de Milão", "Bayern de Munique"],
+        ["Hristo Stoichkov", "Búlgaro", "Bola de Ouro em 1994", "CSKA Sofia", "Barcelona", "Parma", "Kashiwa Reysol"],
+        ["George Weah", "Libéria", "Único africano eleito Melhor do Mundo pela FIFA (1995)", "Mighty Barrolle", "Tonnerre Yaoundé", "Monaco", "Milan"],
+        ["Dennis Bergkamp", "Holanda", "Gol icônico contra a Argentina em 1998", "Ajax", "Inter de Milão", "Arsenal", "Medo de voar de avião"],
+        ["Paolo Maldini", "Itália", "Atuou 25 temporadas consecutivas pelo Milan", "Milan", "Camisa 3 aposentada", "5 títulos da Champions League", "Il Capitano"],
+        ["Franco Baresi", "Itália", "Camisa 6 aposentada no Milan", "Milan", "Vice-campeão em 1994", "Líder da defesa rossonera", "20 anos no clube"],
+        ["Eric Cantona", "França", "Rei de Old Trafford", "Auxerre", "Marseille", "Leeds United", "Manchester United"],
+        ["Gabriel Batistuta", "Argentina", "Batigol", "Newell's Old Boys", "River Plate", "Boca Juniors", "Fiorentina"],
+        ["Davor Šuker", "Croácia", "Artilheiro da Copa de 1998", "Osijek", "Dinamo Zagreb", "Sevilla", "Real Madrid"],
+        ["Gheorghe Hagi", "Romênia", "Maradona dos Bálcãs", "Farul Constanța", "Steaua Bucareste", "Real Madrid", "Galatasaray"],
+        ["Pavel Nedvěd", "República Tcheca", "Bola de Ouro em 2003", "Dukla Praga", "Sparta Praga", "Lazio", "Juventus"],
+        ["Andriy Shevchenko", "Ucrânia", "Bola de Ouro em 2004", "Dynamo Kyiv", "Milan", "Chelsea", "Maior ídolo ucraniano"],
+        ["Deco", "Portugal", "Campeão da Champions por Porto (2004) e Barcelona (2006)", "Corinthians", "Alverca", "Porto", "Fluminense"],
+        ["Ruud van Nistelrooy", "Holanda", "Artilheiro da Champions por 3 temporadas", "Den Bosch", "Heerenveen", "PSV", "Manchester United"],
+        ["Michael Owen", "Inglaterra", "Bola de Ouro em 2001 aos 21 anos", "Liverpool", "Real Madrid", "Newcastle", "Stoke City"],
+        ["Roberto Baggio", "Itália", "Il Divin Codino", "Vicenza", "Fiorentina", "Juventus", "Boca da Noite em 1994"],
+        ["Clarence Seedorf", "Holanda", "Único a vencer a Champions por 3 clubes diferentes", "Ajax", "Real Madrid", "Inter de Milão", "Milan"],
+        ["Edgar Davids", "Holanda", "O Pitbull de óculos especiais", "Ajax", "Milan", "Juventus", "Barcelona"],
+        ["Patrick Vieira", "França", "Capitão dos Os Invencíveis do Arsenal (2003-04)", "Cannes", "Milan", "Arsenal", "Inter de Milão"],
+        ["Roy Keane", "Irlanda", "Capitão lendário do Manchester United nos anos 90/2000", "Cobh Ramblers", "Nottingham Forest", "Manchester United", "Celtic"],
+        ["Paul Scholes", "Inglaterra", "Maestro dos passes longos de Old Trafford", "Manchester United", "One-club man", "11 Premier Leagues", "Camisa 18"]
+    ];
+
+    const facil = [];
+    for (let i = 0; i < 250; i++) {
+        const p = playersFacil[i % playersFacil.length];
+        const type = i % 10;
+        let q = "", a = [], hint = "", exp = "";
+        if (type === 0) {
+            q = `Qual é a nacionalidade do astro do futebol ${p[0]}?`;
+            a = [p[2], "Espanha", "Alemanha", "Itália"];
+            hint = "País onde ele nasceu e defende a seleção.";
+            exp = `${p[0]} defende a seleção de futebol de/do ${p[2]}.`;
+        } else if (type === 1) {
+            q = `Qual apelido ou marca famosa está associado a ${p[0]}?`;
+            a = [p[1], "O Galáctico", "Imperador", "Pistolero"];
+            hint = "Como ele é popularmente chamado pelos torcedores.";
+            exp = `${p[0]} é mundialmente conhecido como '${p[1]}'.`;
+        } else if (type === 2) {
+            q = `Por qual destes grandes clubes o jogador ${p[0]} marcou história?`;
+            a = [p[3], "Bayer Leverkusen", "Galatasaray", "Celtic"];
+            hint = "Um dos clubes mais vitoriosos onde ele vestiu a camisa principal.";
+            exp = `${p[0]} construiu momentos inesquecíveis jogando no ${p[3]}.`;
+        } else if (type === 3) {
+            q = `Qual número de camisa ficou famoso na carreira do jogador ${p[0]}?`;
+            a = [p[4], "Camisa 12", "Camisa 99", "Camisa 4"];
+            hint = "Número tradicional que ele ostentava nas costas.";
+            exp = `${p[0]} utilizou a ${p[4]} em vários momentos de destaque.`;
+        } else if (type === 4) {
+            q = `Qual destes clubes também faz parte da carreira profissional de ${p[0]}?`;
+            a = [p[5], "Shakhtar Donetsk", "Anderlecht", "Olympiacos"];
+            hint = "Clube europeu ou sul-americano por onde ele passou.";
+            exp = `${p[0]} atuou com destaque pelo ${p[5]}.`;
+        } else if (type === 5) {
+            q = `Qual feito ou marca marcante é associado a ${p[0]}?`;
+            a = [p[7], "Mais gols de falta na Ásia", "Único goleiro artilheiro na Europa", "Campeão de surfe profissional"];
+            hint = "Conquista ou feito icônico de sua carreira.";
+            exp = `${p[0]} se destacou no futebol mundial por ${p[7]}.`;
+        } else if (type === 6) {
+            q = `Antes de brilhar em seu pico de carreira, ${p[0]} atuou por qual destas equipes?`;
+            a = [p[6], "Fenerbahçe", "Panathinaikos", "Standard Liège"];
+            hint = "Clube de origem ou passagem importante.";
+            exp = `${p[0]} jogou pelo ${p[6]} em sua caminhada profissional.`;
+        } else if (type === 7) {
+            q = `Em qual seleção nacional o craque ${p[0]} fez história?`;
+            a = [`Seleção de ${p[2]}`, "Seleção da Holanda", "Seleção da Colômbia", "Seleção da Bélgica"];
+            hint = "País de origem do jogador.";
+            exp = `${p[0]} defendeu a Seleção de ${p[2]} em competições internacionais.`;
+        } else if (type === 8) {
+            q = `Qual destes atletas é ídolo do futebol de/do ${p[2]}?`;
+            a = [p[0], "Zinedine Zidane", "Luka Modrić", "Manuel Neuer"];
+            hint = "Nome do próprio astro citado.";
+            exp = `${p[0]} é um dos principais representantes da Seleção de ${p[2]}.`;
+        } else {
+            q = `Qual destes jogadores utilizou a ${p[4]} no ${p[3]}?`;
+            a = [p[0], "Thierry Henry", "Sergio Ramos", "David Beckham"];
+            hint = `Astro da Seleção de ${p[2]}.`;
+            exp = `${p[0]} marcou época com a ${p[4]} no ${p[3]}.`;
+        }
+        facil.push({ id: `f_${i}`, q, a, correct: 0, hint, explanation: exp });
+    }
+
+    const medio = [];
+    for (let i = 0; i < 250; i++) {
+        const p = playersMedio[i % playersMedio.length];
+        const type = i % 10;
+        let q = "", a = [], hint = "", exp = "";
+        if (type === 0) {
+            q = `Em qual clube o jogador ${p[0]} iniciou suas divisões de base ou primeiros passos profissionais?`;
+            a = [p[2], "Porto", "PSV Eindhoven", "Fiorentina"];
+            hint = "Clube de origem de sua carreira.";
+            exp = `${p[0]} teve sua formação no ${p[2]}.`;
+        } else if (type === 1) {
+            q = `Por qual equipe ${p[0]} conquistou destaque mundial ou títulos marcantes?`;
+            a = [p[3], "Schalke 04", "Valencia", "Everton"];
+            hint = "Clube onde ele viveu momentos de ápice.";
+            exp = `${p[0]} brilhou intensamente no ${p[3]}.`;
+        } else if (type === 2) {
+            q = `Qual é o país de nascimento de ${p[0]}?`;
+            a = [p[1], "França", "Itália", "Portugal"];
+            hint = "Nacionalidade do craque.";
+            exp = `${p[0]} é natural de/do ${p[1]}.`;
+        } else if (type === 3) {
+            q = `Qual momento histórico marcou a trajetória de ${p[0]}?`;
+            a = [p[5], "Conquista da Taça Libertadores em 1990", "Gol de calcanhar no Maracanã em 1950", "Artilheiro da Copa de 1970"];
+            hint = "Feito emblemático de sua carreira.";
+            exp = `${p[0]} ficou marcado na história do futebol por: ${p[5]}.`;
+        } else if (type === 4) {
+            q = `Qual destes clubes também contratou o jogador ${p[0]}?`;
+            a = [p[4], "Atalanta", "Villarreal", "Lazio"];
+            hint = "Equipe por onde ele passou.";
+            exp = `${p[0]} também atuou pelo ${p[4]}.`;
+        } else if (type === 5) {
+            q = `Qual outro clube da Europa/América teve ${p[0]} em seu elenco?`;
+            a = [p[6], "Bordeaux", "Espanyol", "Torino"];
+            hint = "Outro clube da carreira do jogador.";
+            exp = `${p[0]} jogou pelo ${p[6]} durante sua carreira.`;
+        } else if (type === 6) {
+            q = `O jogador ${p[0]} é reconhecido internacionalmente por representar qual seleção?`;
+            a = [`Seleção de/do ${p[1]}`, "Seleção da Suécia", "Seleção da Colômbia", "Seleção da Dinamarca"];
+            hint = "Seleção do país natal do atleta.";
+            exp = `${p[0]} defende as cores de/do ${p[1]}.`;
+        } else if (type === 7) {
+            q = `Qual dessas descrições corresponde ao meia/atacante ${p[0]}?`;
+            a = [`Destaque do ${p[3]} e da Seleção de/do ${p[1]}`, "Ex-goleiro campeão da Copa de 1966", "Maior artilheiro de faltas do futebol mexicano", "Zagueiro lendário do futebol australiano"];
+            hint = "Astro do futebol europeu/mundial.";
+            exp = `${p[0]} é um renomado atleta do ${p[3]} e da Seleção de/do ${p[1]}.`;
+        } else if (type === 8) {
+            q = `Em qual destas equipes o futebolista ${p[0]} teve importante passagem?`;
+            a = [p[3], "Standard Liège", "Feyenoord", "Red Bull Leipzig"];
+            hint = "Equipe principal do atleta.";
+            exp = `${p[0]} acumulou grandes partidas no ${p[3]}.`;
+        } else {
+            q = `Qual é o feito marcante do atleta ${p[0]} no futebol?`;
+            a = [p[5], "Cinco gols de pênalti em uma única partida da Copa", "Goleiro com mais assistências no Brasileirão", "Técnico mais jovem da Champions League"];
+            hint = "Cenas inesquecíveis da carreira.";
+            exp = `${p[0]} celebrou: ${p[5]}.`;
+        }
+        medio.push({ id: `m_${i}`, q, a, correct: 0, hint, explanation: exp });
+    }
+
+    const dificil = [];
+    for (let i = 0; i < 250; i++) {
+        const p = playersDificil[i % playersDificil.length];
+        const type = i % 10;
+        let q = "", a = [], hint = "", exp = "";
+        if (type === 0) {
+            q = `Qual é o marco histórico lendário associado a ${p[0]}?`;
+            a = [p[2], "Cinco títulos de Copa Libertadores consecutivos", "Primeiro jogador a marcar gol de voleio do meio campo na Copa", "Goleiro com 50 jogos sem sofrer gols na Europa"];
+            hint = "Feito raríssimo registrado na história do futebol mundial.";
+            exp = `${p[0]} é eternizado por: ${p[2]}.`;
+        } else if (type === 1) {
+            q = `Qual destes clubes foi a equipe formadora ou inicial do lendário ${p[0]}?`;
+            a = [p[3], "Grasshopper", "Standard Liège", "Partizan Belgrado"];
+            hint = "Primeiro clube da carreira do jogador.";
+            exp = `${p[0]} iniciou sua trajetória profissional no ${p[3]}.`;
+        } else if (type === 2) {
+            q = `Por qual destas grandes equipes ${p[0]} registrou passagem marcante na carreira?`;
+            a = [p[4], "Real Zaragoza", "Sampdoria", "Boavista"];
+            hint = "Equipe histórica em que ele atuou.";
+            exp = `${p[0]} defendeu as cores do ${p[4]}.`;
+        } else if (type === 3) {
+            q = `Qual destas outras equipes faz parte do currículo de ${p[0]}?`;
+            a = [p[5], "Mallorca", "Lorient", "Empoli"];
+            hint = "Clube europeu do atleta.";
+            exp = `${p[0]} jogou pelo ${p[5]}.`;
+        } else if (type === 4) {
+            q = `Qual é a nacionalidade do ícone mundial ${p[0]}?`;
+            a = [p[1], "Nigéria", "Suíça", "Sérvia"];
+            hint = "País de origem do ex-jogador.";
+            exp = `${p[0]} representou a Seleção de/do ${p[1]}.`;
+        } else if (type === 5) {
+            q = `Qual destas alcunhas ou particularidades pertence a ${p[0]}?`;
+            a = [p[6], "O Anjo das Pernas Tortas da Ásia", "Rei dos Penaltis de Trivela", "O Imperador de Turim"];
+            hint = "Característica ou apelido famoso de " + p[0];
+            exp = `${p[0]} é lembrado como: ${p[6]}.`;
+        } else if (type === 6) {
+            q = `Em qual clube da Europa/Mundo o lendário ${p[0]} teve fase de apogeu?`;
+            a = [p[5], "Celta de Vigo", "Red Star Belgrade", "Rosenborg"];
+            hint = "Uma das camisas consagradas vestidas por ele.";
+            exp = `${p[0]} atuou no ${p[5]}.`;
+        } else if (type === 7) {
+            q = `Quem foi o protagonista da conquista/marca histórica: '${p[2]}'?`;
+            a = [p[0], "Marco van Basten", "Ruud Gullit", "Lothar Matthäus"];
+            hint = "Craque da Seleção de/do " + p[1];
+            exp = `${p[0]} alcançou a marca histórica de ${p[2]}.`;
+        } else if (type === 8) {
+            q = `Qual destes astros brilhou defendendo a Seleção de/do ${p[1]}?`;
+            a = [p[0], "Andriy Shevchenko", "Davor Šuker", "Pavel Nedvěd"];
+            hint = "Jogador lendário de/do " + p[1];
+            exp = `${p[0]} é uma lenda da Seleção de/do ${p[1]}.`;
+        } else {
+            q = `O jogador ${p[0]} fez história vestindo a camisa de qual dessas equipes?`;
+            a = [p[4], "Sunderland", "Real Sociedad", "Verona"];
+            hint = "Equipe onde ele jogou.";
+            exp = `${p[0]} vestiu a camisa do ${p[4]}.`;
+        }
+        dificil.push({ id: `d_${i}`, q, a, correct: 0, hint, explanation: exp });
+    }
+
+    return { facil, medio, dificil };
+}
+
+const questionsDatabase = generateDatabase();
+const letters = ["A", "B", "C", "D"];
+
+// CONFIGURAÇÃO DE DIFICULDADE
+const diffSettings = {
+    facil: { name: "FÁCIL", time: 20, class: "diff-facil", pointsMultiplier: 1 },
+    medio: { name: "MÉDIO", time: 15, class: "diff-medio", pointsMultiplier: 1.5 },
+    dificil: { name: "DIFÍCIL", time: 10, class: "diff-dificil", pointsMultiplier: 2 }
+};
+
+let currentDiff = "medio";
+let currentPlayerName = "";
+let questions = [];
+let current = 0;
+let score = 0;
+let timeLeft = 15;
+let timer = null;
+let nextTimeout = null;
+let answered = false;
+let paused = false;
+let finished = false;
+
+let skipsLeft = 2;
+let fiftyUsed = false;
+let hintUsed = false;
+
+const lastCorrectPositionMap = {};
+
+const $ = id => document.getElementById(id);
+
+// ==========================================
+// GERENCIAMENTO DE CICLO SEM REPETIÇÃO DE PERGUNTAS
+// ==========================================
+function getUsedQuestionIds(diffKey) {
+    try {
+        return JSON.parse(localStorage.getItem(`quiz_used_ids_${diffKey}`)) || [];
+    } catch (e) {
+        return [];
+    }
+}
+
+function saveUsedQuestionIds(diffKey, idsArray) {
+    localStorage.setItem(`quiz_used_ids_${diffKey}`, JSON.stringify(idsArray));
+}
+
+function getNextQuestionBatch(diffKey, count = 10) {
+    let usedIds = getUsedQuestionIds(diffKey);
+    const allQuestions = questionsDatabase[diffKey];
+
+    // Filtra apenas as perguntas que ainda não foram jogadas neste ciclo
+    let available = allQuestions.filter(q => !usedIds.includes(q.id));
+
+    // Se as perguntas disponíveis forem insuficientes (ciclo de 250 completado), reseta o histórico
+    if (available.length < count) {
+        usedIds = [];
+        saveUsedQuestionIds(diffKey, []);
+        available = [...allQuestions];
+    }
+
+    // Embaralha o pool de perguntas disponíveis
+    available.sort(() => Math.random() - 0.5);
+
+    // Seleciona o lote de 10 perguntas
+    const selected = available.slice(0, count);
+
+    // Registra os IDs das perguntas selecionadas no histórico
+    selected.forEach(q => {
+        if (!usedIds.includes(q.id)) {
+            usedIds.push(q.id);
+        }
+    });
+    saveUsedQuestionIds(diffKey, usedIds);
+
+    // Aplica a rotação de opções (A, B, C, D) para cada pergunta selecionada
+    return selected.map(q => randomizeQuestionOptions(q));
+}
+
+// ==========================================
+// GERENCIAMENTO DE RANKING UNIFICADO E CASE-INSENSITIVE
+// ==========================================
+function getRanking() {
+    try {
+        return JSON.parse(localStorage.getItem("quiz_ilan_erick_ranking_v3")) || [];
+    } catch (e) {
+        return [];
+    }
+}
+
+function saveScore(name, finalScore) {
+    const ranking = getRanking();
+    const normalizedNewName = name.trim().toLowerCase();
+
+    // Busca se já existe o nome cadastrado (sem diferenciar maiúsculas/minúsculas)
+    const existingIndex = ranking.findIndex(item => item.name.toLowerCase() === normalizedNewName);
+
+    if (existingIndex !== -1) {
+        if (finalScore > ranking[existingIndex].score) {
+            ranking[existingIndex].score = finalScore;
+            ranking[existingIndex].name = name.trim();
+        }
+    } else {
+        ranking.push({
+            name: name.trim(),
+            score: finalScore
+        });
+    }
+
+    ranking.sort((a, b) => b.score - a.score);
+    const top10 = ranking.slice(0, 10);
+    localStorage.setItem("quiz_ilan_erick_ranking_v3", JSON.stringify(top10));
+}
+
+function renderRankingHtml() {
+    const ranking = getRanking();
+    if (ranking.length === 0) {
+        return `<p style="margin: 15px 0; opacity: 0.8; font-size: 14px;">Nenhum recorde registrado ainda.<br>Seja o primeiro a jogar!</p>`;
+    }
+
+    let html = '<ul class="ranking-list">';
+    ranking.forEach((item, index) => {
+        let badge = `#${index + 1}`;
+        if (index === 0) badge = "🥇";
+        else if (index === 1) badge = "🥈";
+        else if (index === 2) badge = "🥉";
+
+        html += `
+            <li class="ranking-item">
+                <span>${badge} &nbsp;<b>${item.name}</b></span>
+                <span style="color: var(--amarelo);">${item.score} pts</span>
+            </li>
+        `;
+    });
+    html += '</ul>';
+    return html;
+}
+
+// ==========================================
+// ROTAÇÃO E EMBARALHAMENTO DAS OPÇÕES (A, B, C, D)
+// ==========================================
+function randomizeQuestionOptions(item) {
+    const options = [...item.a];
+    const correctAnswerText = options[item.correct];
+    const qId = item.id;
+
+    for (let i = options.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [options[i], options[j]] = [options[j], options[i]];
+    }
+
+    let newCorrectIndex = options.indexOf(correctAnswerText);
+    const lastPos = lastCorrectPositionMap[qId];
+
+    // Garante que a resposta correta não caia na mesma letra em que caiu da última vez
+    if (lastPos !== undefined && newCorrectIndex === lastPos) {
+        const otherIndices = [0, 1, 2, 3].filter(i => i !== lastPos);
+        const targetIndex = otherIndices[Math.floor(Math.random() * otherIndices.length)];
+
+        [options[newCorrectIndex], options[targetIndex]] = [options[targetIndex], options[newCorrectIndex]];
+        newCorrectIndex = targetIndex;
+    }
+
+    lastCorrectPositionMap[qId] = newCorrectIndex;
+
+    return {
+        ...item,
+        a: options,
+        correct: newCorrectIndex
+    };
+}
+
+function startGame(diffKey) {
+    const nameInput = $("playerNameInput");
+    const enteredName = nameInput ? nameInput.value.trim() : "";
+
+    // OBRIGATORIEDADE ESTRITA DE DIGITAR O NOME A CADA PARTIDA
+    if (!enteredName) {
+        if (nameInput) {
+            nameInput.classList.add("error");
+            nameInput.focus();
+            setTimeout(() => nameInput.classList.remove("error"), 1000);
+        }
+        alert("⚠️ OBRIGATÓRIO: Por favor, informe seu nome de jogador antes de iniciar a partida!");
+        return;
+    }
+
+    soundEngine.init();
+    soundEngine.playClickSound();
+
+    currentPlayerName = enteredName;
+    currentDiff = diffKey;
+    const setting = diffSettings[diffKey];
+
+    $("diffDisplay").textContent = setting.name;
+    $("diffDisplay").className = `diff-badge ${setting.class}`;
+
+    // Obtém 10 perguntas inéditas sem repetição até completar as 250
+    questions = getNextQuestionBatch(diffKey, 10);
+
+    current = 0;
+    score = 0;
+    paused = false;
+    finished = false;
+    answered = false;
+
+    skipsLeft = 2;
+    fiftyUsed = false;
+    hintUsed = false;
+
+    $("overlay").classList.remove("show");
+    $("pauseBtn").disabled = false;
+
+    soundEngine.playGameMusic();
+    renderQuestion();
+}
+
+function renderQuestion() {
+    const item = questions[current];
+    const setting = diffSettings[currentDiff];
+
+    answered = false;
+    timeLeft = setting.time;
+
+    $("question").textContent = item.q;
+    $("questionNumber").textContent = `🏆 PERGUNTA ${current + 1}/${questions.length}`;
+
+    $("progressText").textContent = `${Math.round(current / questions.length * 100)}% concluído`;
+    $("questionBar").style.width = `${current / questions.length * 100}%`;
+
+    $("hint").hidden = true;
+    $("hint").textContent = "";
+
+    $("feedback").textContent = `E aí, ${currentPlayerName}! Escolha a resposta antes que o tempo acabe!`;
+
+    $("answers").innerHTML = "";
+
+    item.a.forEach((answer, index) => {
+        const button = document.createElement("button");
+        button.className = "answer";
+
+        const letter = document.createElement("span");
+        letter.className = "answer-letter";
+        letter.textContent = letters[index];
+
+        const text = document.createElement("span");
+        text.textContent = answer;
+
+        button.append(letter, text);
+        button.addEventListener("click", () => chooseAnswer(index));
+
+        $("answers").appendChild(button);
+    });
+
+    $("score").textContent = score;
+    $("skipBtn").disabled = skipsLeft === 0;
+    $("skipBtn").innerHTML = `<span>⏭️</span> Pular (${skipsLeft})`;
+    $("fiftyBtn").disabled = fiftyUsed;
+    $("hintBtn").disabled = hintUsed;
+
+    startTimer();
+}
+
+function startTimer() {
+    clearInterval(timer);
+
+    if (paused || answered || finished) return;
+
+    updateTimer();
+
+    timer = setInterval(() => {
+        if (paused || answered || finished) return;
+
+        timeLeft--;
+        updateTimer();
+
+        if (timeLeft <= 0) {
+            clearInterval(timer);
+            timeOut();
+        }
+    }, 1000);
+}
+
+function updateTimer() {
+    const totalTime = diffSettings[currentDiff].time;
+    $("time").textContent = `${timeLeft}s`;
+    $("timerBar").style.width = `${(timeLeft / totalTime) * 100}%`;
+
+    $("timerBar").style.background = timeLeft <= 3 ? "#ff424c" : "#ffd331";
+    $("time").style.color = timeLeft <= 3 ? "#ff7777" : "white";
+}
+
+function chooseAnswer(index) {
+    if (answered || paused || finished) return;
+
+    answered = true;
+    clearInterval(timer);
+
+    const item = questions[current];
+    const buttons = [...$("answers").children];
+
+    buttons.forEach((button, i) => {
+        button.disabled = true;
+
+        if (i === item.correct) {
+            button.classList.add("correct");
+        } else if (i === index) {
+            button.classList.add("wrong");
+        }
+    });
+
+    if (index === item.correct) {
+        soundEngine.playCorrectSound();
+        const multiplier = diffSettings[currentDiff].pointsMultiplier;
+        const points = Math.round((100 + timeLeft * 10) * multiplier);
+        score += points;
+
+        $("feedback").textContent = `✅ CORRETO! +${points} pontos`;
+    } else {
+        soundEngine.playWrongSound();
+        $("feedback").textContent = `❌ INCORRETO! ${item.explanation}`;
+    }
+
+    $("score").textContent = score;
+    nextTimeout = setTimeout(nextQuestion, 2400);
+}
+
+function timeOut() {
+    if (answered || finished) return;
+
+    answered = true;
+    soundEngine.playWrongSound();
+
+    const item = questions[current];
+    const buttons = [...$("answers").children];
+
+    buttons.forEach((button, i) => {
+        button.disabled = true;
+
+        if (i === item.correct) {
+            button.classList.add("correct");
+        }
+    });
+
+    $("feedback").textContent = `⏰ TEMPO ESGOTADO! ${item.explanation}`;
+    nextTimeout = setTimeout(nextQuestion, 2600);
+}
+
+function nextQuestion() {
+    clearInterval(timer);
+    clearTimeout(nextTimeout);
+
+    current++;
+
+    if (current >= questions.length) {
+        showResults();
+        return;
+    }
+
+    renderQuestion();
+}
+
+function skipQuestion() {
+    if (answered || paused || finished || skipsLeft <= 0) return;
+
+    soundEngine.playClickSound();
+    skipsLeft--;
+    answered = true;
+    clearInterval(timer);
+
+    $("feedback").textContent = "⏭️ Pergunta pulada! Vamos à próxima.";
+    $("skipBtn").disabled = skipsLeft === 0;
+    $("skipBtn").innerHTML = `<span>⏭️</span> Pular (${skipsLeft})`;
+
+    nextTimeout = setTimeout(nextQuestion, 1000);
+}
+
+function useFifty() {
+    if (answered || paused || finished || fiftyUsed) return;
+
+    soundEngine.playClickSound();
+    fiftyUsed = true;
+    const item = questions[current];
+    const wrongIndexes = [0, 1, 2, 3].filter(index => index !== item.correct);
+
+    wrongIndexes.sort(() => Math.random() - 0.5);
+    wrongIndexes.slice(0, 2).forEach(index => {
+        $("answers").children[index].classList.add("hidden-answer");
+    });
+
+    $("fiftyBtn").disabled = true;
+    $("feedback").textContent = "💡 Duas alternativas incorretas foram eliminadas!";
+}
+
+function showHint() {
+    if (answered || paused || finished || hintUsed) return;
+
+    soundEngine.playClickSound();
+    hintUsed = true;
+    $("hint").textContent = "💡 DICA: " + questions[current].hint;
+    $("hint").hidden = false;
+    $("hintBtn").disabled = true;
+}
+
+function pauseGame() {
+    if (finished) return;
+
+    soundEngine.playClickSound();
+    if (!paused) {
+        paused = true;
+        clearInterval(timer);
+        clearTimeout(nextTimeout);
+        soundEngine.playMenuMusic();
+
+        $("modalContent").innerHTML = `
+            <h2>⏸️ JOGO PAUSADO</h2>
+            <p>Descanse um pouco, <b>${currentPlayerName}</b>. Quando estiver pronto, continue!</p>
+            <button class="btn-diff btn-facil" style="justify-content:center" onclick="resumeGame()">CONTINUAR</button>
+        `;
+        $("overlay").classList.add("show");
+    }
+}
+
+function resumeGame() {
+    if (finished) return;
+
+    soundEngine.playClickSound();
+    paused = false;
+    $("overlay").classList.remove("show");
+
+    if (answered) {
+        nextTimeout = setTimeout(nextQuestion, 500);
+    } else {
+        soundEngine.playGameMusic();
+        startTimer();
+    }
+}
+
+function showResults() {
+    finished = true;
+    clearInterval(timer);
+    clearTimeout(nextTimeout);
+
+    // Salva a pontuação no Ranking Unificado
+    saveScore(currentPlayerName, score);
+
+    $("question").textContent = "🏆 DESAFIO CONCLUÍDO!";
+    $("answers").innerHTML = "";
+    $("hint").hidden = true;
+    $("feedback").textContent = "";
+
+    $("questionNumber").textContent = "FIM DO QUIZ";
+    $("progressText").textContent = "100% concluído";
+    $("questionBar").style.width = "100%";
+
+    let message;
+    if (score >= 900) {
+        soundEngine.playWinSound();
+        message = `🎉 INCRÍVEL, <b>${currentPlayerName}</b>! Você deu um show de conhecimento!`;
+    } else {
+        soundEngine.playLoseSound();
+        message = `💔 Bom jogo, <b>${currentPlayerName}</b>! Treine mais para subir no ranking!`;
+    }
+
+    $("modalContent").innerHTML = `
+        <h2>🏆 FIM DE JOGO!</h2>
+        <p>${message}<br><br><b>Pontuação Final:</b> <span style="color:var(--amarelo); font-size:18px;">${score} pts</span></p>
+        
+        <h3 style="color:var(--amarelo); margin-top:15px; font-size:16px;">🏆 TOP 10 RANKING GERAL</h3>
+        ${renderRankingHtml()}
+
+        <div class="modal-btns">
+            <button class="btn-diff btn-facil" style="justify-content:center" onclick="resetToMenu()">JOGAR NOVAMENTE</button>
+        </div>
+    `;
+
+    $("overlay").classList.add("show");
+
+    $("skipBtn").disabled = true;
+    $("fiftyBtn").disabled = true;
+    $("hintBtn").disabled = true;
+    $("pauseBtn").disabled = true;
+}
+
+function showRankingView() {
+    soundEngine.playClickSound();
+    if (!paused && !finished && timer) {
+        paused = true;
+        clearInterval(timer);
+        clearTimeout(nextTimeout);
+        soundEngine.playMenuMusic();
+    }
+
+    $("modalContent").innerHTML = `
+        <h2>🏆 TOP 10 RANKING GERAL</h2>
+        ${renderRankingHtml()}
+        <div class="modal-btns">
+            <button class="btn-diff btn-facil" style="justify-content:center" onclick="resetToMenu()">⬅️ VOLTAR AO MENU</button>
+        </div>
+    `;
+    $("overlay").classList.add("show");
+}
+
+function resetToMenu() {
+    soundEngine.playClickSound();
+    soundEngine.playMenuMusic();
+
+    // Reset do nome a cada nova partida
+    currentPlayerName = "";
+
+    $("modalContent").innerHTML = `
+        <h2>🏆 QUIZ DE FUTEBOL</h2>
+        <p>Informe o seu nome de jogador obrigatoriamente para poder iniciar a partida!</p>
+        
+        <div class="name-input-group">
+            <label for="playerNameInput">NOME DO JOGADOR <span style="color:var(--vermelho)">* (Obrigatório)</span></label>
+            <input type="text" id="playerNameInput" class="name-input" placeholder="Digite seu nome para jogar..." maxlength="15" autocomplete="off">
+        </div>
+
+        <div class="modal-btns">
+            <button class="btn-diff btn-facil" onclick="startGame('facil')">
+                <span>🟢 FÁCIL (250 Pergs)</span>
+                <span style="font-size: 13px; opacity: 0.9;">20s por pergunta</span>
+            </button>
+            <button class="btn-diff btn-medio" onclick="startGame('medio')">
+                <span>🟡 MÉDIO (250 Pergs)</span>
+                <span style="font-size: 13px; opacity: 0.9;">15s por pergunta</span>
+            </button>
+            <button class="btn-diff btn-dificil" onclick="startGame('dificil')">
+                <span>🔴 DIFÍCIL (250 Pergs)</span>
+                <span style="font-size: 13px; opacity: 0.9;">10s por pergunta</span>
+            </button>
+            <button class="btn-diff btn-ranking" onclick="showRankingView()">
+                <span>🏆 VER RANKING GERAL</span>
+            </button>
+        </div>
+    `;
+    $("overlay").classList.add("show");
+}
+
+// TOGGLE DE SOM
+$("soundBtn").addEventListener("click", () => {
+    soundEngine.init();
+    const isMuted = soundEngine.toggleMute();
+    $("soundBtn").textContent = isMuted ? "🔇" : "🔊";
+});
+
+// EVENTOS DOS BOTÕES
+$("skipBtn").addEventListener("click", skipQuestion);
+$("fiftyBtn").addEventListener("click", useFifty);
+$("hintBtn").addEventListener("click", showHint);
+$("pauseBtn").addEventListener("click", pauseGame);
+
+// INICIALIZAR ÁUDIO DE MENU E TELA INICIAL
+document.addEventListener("click", () => soundEngine.init(), { once: true });
+resetToMenu();
+</script>
+
+</body>
+</html>
